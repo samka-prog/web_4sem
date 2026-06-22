@@ -1,0 +1,275 @@
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root {
+    --blue-primary:   #1B38AD;
+    --blue-secondary: #2C61AB;
+    --text-dark:      #304E4E;
+    --bg-white:       #FFFFFF;
+    --bg-sage:        #F8F9F4;
+    --accent-green:   #62DD40;
+    --header-dark:    #0E1116;
+    --header-light:   rgba(255, 255, 255, 0.95);
+    --header-height:  45px;
+    --nav-height:     56px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    color: var(--text-dark);
+    background-color: var(--bg-white);
+    line-height: 1.7;
+    font-size: 19.2px;
+    scroll-behavior: smooth;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Roboto', sans-serif;
+    color: var(--blue-secondary);
+    margin-bottom: 1.5rem;
+}
+
+a {
+    color: var(--blue-primary);
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+strong {
+    font-weight: 700;
+}
+
+/* ============================================================
+   GLOBAL HEADER
+   ============================================================ */
+.global-header {
+    background-color: var(--header-dark);
+    color: white;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    height: var(--header-height);
+    align-items: center;
+}
+
+/* ============================================================
+   LOCAL NAV
+   ============================================================ */
+.local-header {
+    background-color: var(--header-light);
+    padding: 1rem 2rem;
+    position: sticky;
+    top: var(--header-height);
+    border-bottom: 1px solid #ddd;
+    z-index: 99;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    backdrop-filter: blur(10px);
+    height: var(--nav-height);
+    align-items: center;
+}
+
+.local-header a {
+    color: var(--text-dark);
+    font-weight: 600;
+    transition: color 0.3s;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.3s, border-color 0.3s;
+}
+.local-header a:hover {
+    color: var(--blue-primary);
+    text-decoration: none;
+    border-bottom-color: var(--blue-primary);
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+    height: 60vh;
+    background-color: var(--blue-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
+    padding: 2rem;
+    /* offset for the fixed + sticky headers */
+    margin-top: calc(var(--header-height) + var(--nav-height));
+}
+
+.hero-content {
+    max-width: 900px;
+}
+
+.hero h1 {
+    color: white;
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    animation: fadeInTop 1s ease-out;
+}
+
+.hero .byline {
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-top: 1rem;
+    opacity: 0.9;
+}
+
+/* ============================================================
+   IMMERSIVE SPLIT SECTIONS (Sidecar)
+   ============================================================ */
+.immersive-section {
+    display: flex;
+    align-items: stretch;
+    min-height: 100vh;
+    background-color: var(--bg-white);
+}
+
+/* Alternate layout: image on left, text on right */
+.immersive-section--reversed {
+    flex-direction: row-reverse;
+}
+
+/* ---- Text panel ---- */
+.immersive-text-panel {
+    width: 50%;
+    padding: 8rem 4rem;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 10;
+    /* Fade-in via IntersectionObserver */
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.immersive-text-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.immersive-text-panel h2 {
+    font-size: 1.9rem;
+}
+
+/* Secondary heading inside a panel — tighter top gap */
+.section-subheading {
+    margin-top: 2.5rem;
+}
+
+.immersive-text-panel p {
+    margin-bottom: 1.5rem;
+}
+
+/* ---- Media panel ---- */
+.immersive-media {
+    width: 50%;
+    background-color: var(--bg-sage);
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.immersive-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ---- Figcaption — single definition, used by all four figures ---- */
+.immersive-media figcaption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.85);
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    color: #555555;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    font-style: italic;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+    z-index: 5;
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-footer {
+    background-color: var(--header-dark);
+    color: #ffffff;
+    text-align: center;
+    padding: 3rem;
+    margin-top: 4rem;
+}
+
+/* ============================================================
+   ANIMATION
+   ============================================================ */
+@keyframes fadeInTop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 900px) {
+    .immersive-section,
+    .immersive-section--reversed {
+        flex-direction: column;
+    }
+
+    .immersive-text-panel,
+    .immersive-media {
+        width: 100%;
+    }
+
+    .immersive-media {
+        min-height: 50vw;
+    }
+
+    .immersive-text-panel {
+        padding: 4rem 2rem;
+    }
+
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .local-header {
+        gap: 1rem;
+        font-size: 0.9rem;
+    }
+}

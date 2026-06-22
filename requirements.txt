@@ -1,0 +1,8 @@
+geopandas
+pandas
+matplotlib
+contextily
+numpy
+mapclassify
+matplotlib-scalebar
+shapely

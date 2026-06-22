@@ -1,0 +1,13 @@
+# ── Data sources ──
+data/
+
+# ── Generated outputs ──
+assets/*.png
+
+# ── Python / virtual environment ──
+.venv/
+__pycache__/
+*.pyc
+
+# ── OS files ──
+.DS_Store
