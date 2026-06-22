@@ -181,7 +181,7 @@ ax.annotate(
 ax.annotate("", xy=dense_t2, xytext=dense_text,
             arrowprops=ANNOTATION_ARROW, zorder=5)
 
-plt.savefig(PATHS["out_population"], dpi=300, bbox_inches="tight")
+plt.savefig(PATHS["out_population"], dpi=96, bbox_inches="tight")
 print(f"Saved → {PATHS['out_population']}")
 plt.show()
 
@@ -256,7 +256,7 @@ ax.annotate(
 ax.annotate("", xy=dense_t2, xytext=dense_text,
             arrowprops=ANNOTATION_ARROW, zorder=5)
 
-plt.savefig(PATHS["out_accessibility"], dpi=300, bbox_inches="tight")
+plt.savefig(PATHS["out_accessibility"], dpi=96, bbox_inches="tight")
 print(f"Saved → {PATHS['out_accessibility']}")
 plt.show()
 
@@ -327,6 +327,6 @@ ax.annotate(
 ax.annotate("", xy=dense_t2, xytext=dense_text,
             arrowprops=ANNOTATION_ARROW, zorder=5)
 
-plt.savefig(PATHS["out_optimised"], dpi=300, bbox_inches="tight")
+plt.savefig(PATHS["out_optimised"], dpi=96, bbox_inches="tight")
 print(f"Saved → {PATHS['out_optimised']}")
 plt.show()

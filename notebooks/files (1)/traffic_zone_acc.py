@@ -16,7 +16,8 @@ from matplotlib.colors import TwoSlopeNorm
 from matplotlib_scalebar.scalebar import ScaleBar
 from map_utils import (
     PATHS, MUNICIPALITIES, CMAP_LIVABILITY,
-    SCALEBAR_SOLID, add_municipal_labels, set_map_bounds,
+    SCALEBAR_SOLID, add_municipal_labels, set_map_bounds, style_legend,
+    ANNOTATION_BBOX, ANNOTATION_ARROW, ANNOTATION_TEXT,           # ← pulled from map_utils
 )
 
 # ── 1. Load spatial layers ────────────────────────────────────────────────────
@@ -73,43 +74,93 @@ def _finish_map(ax, gdf):
     add_municipal_labels(ax, MUNICIPALITIES, color="#222222", weight="bold")
 
 
-# # ── 5a. Map 1 — RdBu_r diverging scheme ──────────────────────────────────────
-# fig, ax = plt.subplots(figsize=(12, 11))
+def _add_colorbar_legend(fig, cmap, norm, max_abs,
+                         axes_rect, bg_rect):
+    """
+    Draw a framed inset horizontal colorbar that matches the legend style
+    used in population_map.py (white box, #cccccc border, style_legend fonts).
 
-# gdf_mapped_3857.plot(
-#     column="Accessibility_Change",
-#     cmap="RdBu_r",
-#     norm=norm,
-#     legend=True,
-#     ax=ax,
-#     alpha=0.55,
-#     edgecolor="#555555",
-#     linewidth=0.4,
-#     zorder=2,
-#     legend_kwds={
-#         "label": "Change in Accessibility Score\n Reduced     Neutral      Improved",
-#         "orientation": "vertical",
-#         "pad": 0.04,
-#         "shrink": 0.75,
-#         "aspect": 30,
-#     },
-# )
+    Parameters
+    ----------
+    axes_rect : [left, bottom, width, height]  — colorbar axes in fig fraction
+    bg_rect   : [left, bottom, width, height]  — background patch (slightly larger)
+    """
+    # Background frame — matches style_legend legend frame appearance
+    bg = fig.add_axes(bg_rect)
+    bg.set_zorder(4)
+    bg.set_axis_off()
+    bg.patch.set_visible(True)
+    bg.patch.set_facecolor("white")
+    bg.patch.set_edgecolor("#cccccc")   # matches ANNOTATION_BBOX ec
+    bg.patch.set_linewidth(0.5)         # matches ANNOTATION_BBOX lw
 
-# # Style the auto-generated colorbar axis
-# fig_obj = ax.get_figure()
-# for child_ax in fig_obj.get_axes():
-#     if child_ax is not ax:
-#         child_ax.tick_params(labelsize=9)
-#         child_ax.set_xlabel(
-#             child_ax.get_xlabel(),
-#             fontfamily="sans-serif", fontsize=11, color="#111111", fontweight="medium",
-#         )
+    # Colorbar axes on top of background
+    cax = fig.add_axes(axes_rect)
+    cax.set_zorder(5)
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    cb = fig.colorbar(sm, cax=cax, orientation="horizontal")
 
-# _finish_map(ax, gdf_mapped_3857)
-# plt.tight_layout()
-# plt.savefig(PATHS["out_difference"], dpi=96, bbox_inches="tight")
-# print(f"\nMap 1 saved → {PATHS['out_difference']}")
-# plt.show()
+    # Semantic tick labels — same convention as population legend text
+    cb.set_ticks([-max_abs, 0, max_abs])
+    cb.set_ticklabels(["Reduced", "Neutral", "Improved"])
+    cb.ax.tick_params(labelsize=9, color="#333333", length=0)
+
+    # Title — matches style_legend title: bold, size 10, color #333333
+    cb.ax.set_title(
+        "Change in Accessibility Score",
+        fontsize=10,
+        color="#333333",
+        fontfamily="sans-serif",
+        fontweight="bold",
+        pad=4,
+        loc="left",
+    )
+
+    return cb
+
+
+# ── 5a. Map 1 — RdBu_r diverging scheme ──────────────────────────────────────
+fig, ax = plt.subplots(figsize=(12, 11))
+
+gdf_mapped_3857.plot(
+    column="Accessibility_Change",
+    cmap="RdBu_r",
+    norm=norm,
+    legend=True,
+    ax=ax,
+    alpha=0.55,
+    edgecolor="#555555",
+    linewidth=0.4,
+    zorder=2,
+    legend_kwds={
+        "orientation": "vertical",
+        "pad": 0.04,
+        "shrink": 0.75,
+        "aspect": 30,
+    },
+)
+
+# Style the auto-generated colorbar axis to match style_legend conventions
+fig_obj = ax.get_figure()
+for child_ax in fig_obj.get_axes():
+    if child_ax is not ax:
+        child_ax.tick_params(labelsize=9, color="#333333")
+        child_ax.set_ylabel("")                      # clear side label
+        child_ax.set_title(
+            "Change in Accessibility Score\n(Optimized − Baseline)",
+            fontsize=10,
+            color="#333333",
+            fontfamily="sans-serif",
+            fontweight="bold",                       # matches style_legend title
+            pad=6,
+            loc="left",
+        )
+
+_finish_map(ax, gdf_mapped_3857)
+plt.tight_layout()
+plt.savefig(PATHS["out_difference"], dpi=300, bbox_inches="tight")
+print(f"\nMap 1 saved → {PATHS['out_difference']}")
+plt.show()
 
 
 # ── 5b. Map 2 — Custom livability color ramp ─────────────────────────────────
@@ -129,42 +180,33 @@ gdf_mapped_3857.plot(
 
 _finish_map(ax, gdf_mapped_3857)
 
-# Annotation — explain amber zones
+# Annotation — uses shared ANNOTATION_BBOX / ANNOTATION_ARROW / ANNOTATION_TEXT
 ax.annotate(
     "Amber zones had extremely high accessibility\n"
     "due to TOD development logic.\n"
     "A decline here means the whole area\n"
     "is becoming more homogeneous.",
     xy=(953200, 5988500),
-    xytext=(951500, 5985000),
+    xytext=(950600, 5983600),
     xycoords="data",
-    arrowprops=dict(arrowstyle="->", color="#555555", lw=0.8),
-    bbox=dict(boxstyle="round,pad=0.5", fc="white", ec="#cccccc", lw=0.6),
-    fontsize=9, color="#333333", fontfamily="sans-serif",
-    ha="left", va="top", zorder=6,
+    arrowprops=ANNOTATION_ARROW,
+    bbox=ANNOTATION_BBOX,
+    ha="left", va="top",
+    **ANNOTATION_TEXT,
 )
 
-# Inset colorbar
-cax = fig.add_axes([0.48, 0.9, 0.27, 0.02])
-sm = plt.cm.ScalarMappable(cmap=CMAP_LIVABILITY, norm=norm)
-cb = fig.colorbar(sm, cax=cax, orientation="horizontal")
-
-# Remove default numeric ticks — replace with 3 semantic anchors
-cb.set_ticks([-max_abs, 0, max_abs])
-cb.set_ticklabels(["Reduced", "Neutral", "Improved"])
-cb.ax.tick_params(labelsize=9, color="#333333", length=0)  # length=0 hides tick marks
-
-# Title above, left-aligned
-cb.ax.set_title(
-    "Change in Accessibility Score",
-    fontsize=9,
-    color="#333333",
-    fontfamily="sans-serif",
-    fontweight="medium",
-    pad=4,
-    loc="left",
+# Inset colorbar with framed legend box
+# Tweak axes_rect / bg_rect by ±0.01 if title or ticks clip at your resolution
+_add_colorbar_legend(
+    fig,
+    cmap=CMAP_LIVABILITY,
+    norm=norm,
+    max_abs=max_abs,
+    axes_rect=[0.13,  0.875, 0.27, 0.022],   # colorbar bar itself
+    bg_rect  =[0.105, 0.840, 0.325, 0.075],  # white frame around bar + labels
 )
+
 plt.tight_layout(rect=[0, 0.04, 1, 1])
-plt.savefig(PATHS["out_difference1"], dpi=96, bbox_inches="tight")
+plt.savefig(PATHS["out_difference1"], dpi=300, bbox_inches="tight")
 print(f"Map 2 saved → {PATHS['out_difference1']}")
 plt.show()
