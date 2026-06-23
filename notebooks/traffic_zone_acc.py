@@ -10,6 +10,8 @@
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+# import matplotlib
+# matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import contextily as cx
 from matplotlib.colors import TwoSlopeNorm
@@ -107,29 +109,51 @@ ax.annotate(
     ha="left", va="top", zorder=6,
 )
 
-# ── Patch legend (replaces inset colorbar) ────────────────────────────────────
-from map_utils import style_legend
+# ── Colorbar legend ───────────────────────────────────────────────────────────
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-n_patches = 5
-patch_colors = [CMAP_LIVABILITY(p) for p in np.linspace(0, 1, n_patches)]
-patch_labels = ["Reduced", "Slightly reduced", "Neutral", "Slightly improved", "Improved"]
-
-handles = [
-    mpatches.Patch(facecolor=c, edgecolor="white", label=l)
-    for c, l in zip(patch_colors, patch_labels)
-]
-
-legend = ax.legend(
-    handles=handles,
-    title="Change in Accessibility Score",
+# Create the parent container axes (the white legend box)
+parent_ax = inset_axes(
+    ax,
+    width=3.8,
+    height=0.95,
     loc="upper right",
-    bbox_to_anchor=(1.0, 1.0),
-    frameon=True,
-    fontsize=9,
-    title_fontsize=10,
-    alignment="left",
+    borderpad=1.0,
 )
-style_legend(legend)
+parent_ax.set_xticks([])
+parent_ax.set_yticks([])
+parent_ax.patch.set_facecolor("white")
+parent_ax.patch.set_edgecolor("#cccccc")
+parent_ax.patch.set_linewidth(0.6)
+
+# Position the colorbar axes (cax) inside parent_ax.
+cax = inset_axes(
+    parent_ax,
+    width="80%",
+    height="18%",
+    loc="center",
+    bbox_to_anchor=(0.0, -0.15, 1.0, 1.0),
+    bbox_transform=parent_ax.transAxes,
+    borderpad=0,
+)
+
+# Create colorbar
+sm = plt.cm.ScalarMappable(cmap=CMAP_LIVABILITY, norm=norm)
+cb = fig.colorbar(sm, cax=cax, orientation="horizontal")
+cb.set_ticks([-max_abs, 0, max_abs])
+cb.set_ticklabels(["Reduced", "Neutral", "Improved"])
+cb.ax.tick_params(labelsize=9, color="#333333", length=0, pad=4)
+
+# Set the title
+cb.ax.set_title(
+    "Change in Accessibility Score",
+    fontsize=10,
+    color="#333333",
+    fontfamily="sans-serif",
+    fontweight="bold",
+    pad=8,
+    loc="left",
+)
 
 plt.tight_layout()
 plt.savefig(PATHS["out_difference1"], dpi=96, bbox_inches="tight")
