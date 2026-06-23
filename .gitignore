@@ -6,7 +6,7 @@ assets/*.png
 
 # ── Python / virtual environment ──
 .venv/
-__pycache__/
+__pycache__
 *.pyc
 
 # ── OS files ──

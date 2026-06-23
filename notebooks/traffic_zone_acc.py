@@ -66,53 +66,16 @@ print(f"\nNorm limits → vmin: {-max_abs:.4f}, vcenter: 0, vmax: {max_abs:.4f}"
 # ── Helper: common basemap / scalebar / labels steps ─────────────────────────
 def _finish_map(ax, gdf):
     """Add basemap, crop, scalebar, and municipal labels."""
-    cx.add_basemap(ax, source=cx.providers.CartoDB.VoyagerNoLabels, alpha=1, zorder=1)
+    cx.add_basemap(ax, source=cx.providers.CartoDB.PositronNoLabels, alpha=1, zorder=1)
     set_map_bounds(ax, gdf)
     ax.set_axis_off()
     ax.add_artist(ScaleBar(**SCALEBAR_SOLID))
     add_municipal_labels(ax, MUNICIPALITIES, color="#222222", weight="bold")
 
 
-# # ── 5a. Map 1 — RdBu_r diverging scheme ──────────────────────────────────────
-# fig, ax = plt.subplots(figsize=(12, 11))
-
-# gdf_mapped_3857.plot(
-#     column="Accessibility_Change",
-#     cmap="RdBu_r",
-#     norm=norm,
-#     legend=True,
-#     ax=ax,
-#     alpha=0.55,
-#     edgecolor="#555555",
-#     linewidth=0.4,
-#     zorder=2,
-#     legend_kwds={
-#         "label": "Change in Accessibility Score\n Reduced     Neutral      Improved",
-#         "orientation": "vertical",
-#         "pad": 0.04,
-#         "shrink": 0.75,
-#         "aspect": 30,
-#     },
-# )
-
-# # Style the auto-generated colorbar axis
-# fig_obj = ax.get_figure()
-# for child_ax in fig_obj.get_axes():
-#     if child_ax is not ax:
-#         child_ax.tick_params(labelsize=9)
-#         child_ax.set_xlabel(
-#             child_ax.get_xlabel(),
-#             fontfamily="sans-serif", fontsize=11, color="#111111", fontweight="medium",
-#         )
-
-# _finish_map(ax, gdf_mapped_3857)
-# plt.tight_layout()
-# plt.savefig(PATHS["out_difference"], dpi=96, bbox_inches="tight")
-# print(f"\nMap 1 saved → {PATHS['out_difference']}")
-# plt.show()
-
-
 # ── 5b. Map 2 — Custom livability color ramp ─────────────────────────────────
+import matplotlib.patches as mpatches
+
 fig, ax = plt.subplots(figsize=(12, 11))
 
 gdf_mapped_3857.plot(
@@ -144,27 +107,31 @@ ax.annotate(
     ha="left", va="top", zorder=6,
 )
 
-# Inset colorbar
-cax = fig.add_axes([0.48, 0.9, 0.27, 0.02])
-sm = plt.cm.ScalarMappable(cmap=CMAP_LIVABILITY, norm=norm)
-cb = fig.colorbar(sm, cax=cax, orientation="horizontal")
+# ── Patch legend (replaces inset colorbar) ────────────────────────────────────
+from map_utils import style_legend
 
-# Remove default numeric ticks — replace with 3 semantic anchors
-cb.set_ticks([-max_abs, 0, max_abs])
-cb.set_ticklabels(["Reduced", "Neutral", "Improved"])
-cb.ax.tick_params(labelsize=9, color="#333333", length=0)  # length=0 hides tick marks
+n_patches = 5
+patch_colors = [CMAP_LIVABILITY(p) for p in np.linspace(0, 1, n_patches)]
+patch_labels = ["Reduced", "Slightly reduced", "Neutral", "Slightly improved", "Improved"]
 
-# Title above, left-aligned
-cb.ax.set_title(
-    "Change in Accessibility Score",
+handles = [
+    mpatches.Patch(facecolor=c, edgecolor="white", label=l)
+    for c, l in zip(patch_colors, patch_labels)
+]
+
+legend = ax.legend(
+    handles=handles,
+    title="Change in Accessibility Score",
+    loc="upper right",
+    bbox_to_anchor=(1.0, 1.0),
+    frameon=True,
     fontsize=9,
-    color="#333333",
-    fontfamily="sans-serif",
-    fontweight="medium",
-    pad=4,
-    loc="left",
+    title_fontsize=10,
+    alignment="left",
 )
-plt.tight_layout(rect=[0, 0.04, 1, 1])
+style_legend(legend)
+
+plt.tight_layout()
 plt.savefig(PATHS["out_difference1"], dpi=96, bbox_inches="tight")
 print(f"Map 2 saved → {PATHS['out_difference1']}")
 plt.show()

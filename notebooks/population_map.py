@@ -53,10 +53,7 @@ p_minx, p_miny, p_maxx, p_maxy = pop_gdf.total_bounds
 study_box = box(p_minx - 1500, p_miny - 600, p_maxx + 1500, p_maxy + 600)
 boundary_gdf = gpd.GeoDataFrame(geometry=[study_box], crs="EPSG:3857")
 
-# Water bodies (coordinates are Swiss Grid / EPSG:2056 — override and reproject)
-# water_national = gpd.read_file(PATHS["shp_water"])
-# water_national = water_national.set_crs(epsg=2056, allow_override=True)
-# water_gdf = gpd.clip(water_national.to_crs(epsg=3857), boundary_gdf)
+
 
 print(f"Population points:  {len(pop_gdf)}")
 print(f"Pharmacies:         {len(pharmacies_gdf)}")
