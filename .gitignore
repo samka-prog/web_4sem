@@ -2,7 +2,7 @@
 
 
 # ── Generated outputs ──
-assets/*.png
+
 
 # ── Python / virtual environment ──
 .venv/
