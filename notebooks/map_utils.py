@@ -11,8 +11,8 @@ from matplotlib_scalebar.scalebar import ScaleBar
 import matplotlib.colors as mcolors
 
 # ── File paths ────────────────────────────────────────────────────────────────
-DATA   = Path("/Users/ianasam/Documents/study/project/web_4sem/data")
-ASSETS = Path("/Users/ianasam/Documents/study/project/web_4sem/assets")
+DATA   = Path("data")
+ASSETS = Path("assets")
 
 PATHS = {
     # inputs — all files sit flat inside data/
