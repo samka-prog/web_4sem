@@ -152,7 +152,7 @@ cb.ax.set_title(
     fontfamily="sans-serif",
     fontweight="bold",
     pad=8,
-    loc="left",
+    loc="center",
 )
 
 plt.tight_layout()
